@@ -1,0 +1,3 @@
+[submodule "scripts/uavcan_tools"]
+	path = scripts/uavcan_tools
+	url = https://github.com/Innopolis-UAV-Team/uavcan_tools
