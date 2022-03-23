@@ -1,0 +1,9 @@
+# uavcan
+pyserial
+uavcan
+
+# common
+pyyaml
+rospkg
+future
+coloredlogs

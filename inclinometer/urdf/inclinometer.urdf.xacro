@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<robot name="vtol" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:property name="INCLINOMETER_X"    value="0.04" />
+  <xacro:property name="INCLINOMETER_Y"    value="0.1" />
+  <xacro:property name="INCLINOMETER_Z"    value="0.01" />
+
+  <xacro:property name="BIG_HOLE_RADIUS"    value="0.01" />
+  <xacro:property name="BIG_HOLE_SHIFT_X"   value="0.02" />
+  <xacro:property name="BIG_HOLE_SHIFT_Y"   value="0.08" />
+
+  <material name="grey">
+    <color rgba="0.5 0.5 0.5 1.0"/>
+  </material>
+  <material name="white">
+    <color rgba="1.0 1.0 1.0 1.0"/>
+  </material>
+
+  <link name="base_footprint"/>
+
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="3.14 0 3.14"/>
+      <geometry>
+        <box size="${INCLINOMETER_X * 2} ${INCLINOMETER_Y * 2} ${INCLINOMETER_Z * 2}"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${INCLINOMETER_X * 2} ${INCLINOMETER_Y * 2} ${INCLINOMETER_Z * 2}"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="base_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="big_hole1">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="${BIG_HOLE_RADIUS}" length="${INCLINOMETER_Z * 2.05}" />
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="${BIG_HOLE_RADIUS}" length="${INCLINOMETER_Z * 2}" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="hole1_connect" type="fixed">
+    <parent link="base_link"/>
+    <child link="big_hole1"/>
+    <origin xyz="${BIG_HOLE_SHIFT_X} ${BIG_HOLE_SHIFT_Y} 0.0" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <link name="big_hole2">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="${BIG_HOLE_RADIUS}" length="${INCLINOMETER_Z * 2.05}" />
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="${BIG_HOLE_RADIUS}" length="${INCLINOMETER_Z * 2}" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="hole2_connect" type="fixed">
+    <parent link="base_link"/>
+    <child link="big_hole2"/>
+    <origin xyz="${BIG_HOLE_SHIFT_X} ${-BIG_HOLE_SHIFT_Y} 0.0" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+</robot>

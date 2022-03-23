@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <rosparam file="$(find inclinometer)/config/inclinometer_params.yaml" command="load" ns="inclinometer/" />
+    <node pkg="uavcan_communicator" type="uavcan_communicator" name="uavcan_communicator" output="screen" required="true" ns="inclinometer"/>
+</launch>
