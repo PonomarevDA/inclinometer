@@ -22,7 +22,7 @@ git clone https://github.com/PonomarevDA/inclinometer --recursive
 Don't forget to update submodules after each pull. Or call this command if you forget to add `--recursive` in previous command:
 
 ```bash
-git submodules update --init --recursive
+git submodule update --init --recursive
 ```
 
 The easiest way to play with this package is to use [scripts/docker.sh](scripts/docker.sh) script.
