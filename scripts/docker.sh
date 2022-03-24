@@ -39,9 +39,9 @@ setup_config() {
                  -e DISPLAY=$DISPLAY                                        \
                  -e QT_X11_NO_MITSHM=1)"
 
-    echo "docker/config.sh: TAG_NAME is" $TAG_NAME
-    echo "docker/config.sh: DOCKERHUB_REPOSITOTY is" $DOCKERHUB_REPOSITOTY
-    echo "docker/config.sh: DEV_PATH_SYMLINK is" $DEV_PATH_SYMLINK
+    echo "TAG_NAME is" $TAG_NAME
+    echo "DOCKERHUB_REPOSITOTY is" $DOCKERHUB_REPOSITOTY
+    echo "DEV_PATH_SYMLINK is" $DEV_PATH_SYMLINK
 }
 
 build_docker_image() {
@@ -61,9 +61,9 @@ push_docker_image() {
 
 run() {
     setup_config
+    xhost +local:docker
     CONTAINER_ID=$(sudo docker container run --rm $DOCKER_FLAGS $DOCKER_CONTAINER_NAME ./inclinometer/scripts/run_inclinometer.sh)
-    host=$(docker inspect --format='{{ .Config.Hostname }}' $DOCKER_CONTAINER_NAME)
-    xhost +local:$host
+    # host=$(docker inspect --format='{{ .Config.Hostname }}' $DOCKER_CONTAINER_NAME)
 }
 
 run_interactive() {
@@ -75,8 +75,6 @@ kill_all_containers() {
     sudo docker kill $(sudo docker ps -q)
 }
 
-
-cd "$(dirname "$0")"
 
 if [ "$1" = "build" ]; then
     build_docker_image
