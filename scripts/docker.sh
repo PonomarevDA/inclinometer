@@ -76,6 +76,8 @@ kill_all_containers() {
 }
 
 
+cd "$(dirname "$0")"
+
 if [ "$1" = "build" ]; then
     build_docker_image
 elif [ "$1" = "pull" ]; then
