@@ -1,6 +1,6 @@
 # uavcan
 pyserial
-uavcan
+dronecan
 
 # common
 pyyaml

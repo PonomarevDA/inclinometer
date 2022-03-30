@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
     <include file="$(find inclinometer)/launch/inclinometer/rviz.launch"/>
-    <include file="$(find inclinometer)/launch/uavcan/uavcan_communicator.launch"/>
+    <!-- <include file="$(find inclinometer)/launch/uavcan/uavcan_communicator.launch"/> -->
+    <node pkg="inclinometer" type="uav_to_ros_converter.py" name="uav_to_ros_converter" output="screen"/>
 
     <node pkg="inclinometer" type="tf_broadcaster_node" name="tf_broadcaster_node" output="screen"/>
 

@@ -10,4 +10,5 @@ apt-get install -y  python3-pip                             \
                     ros-$ROS_DISTRO-xacro                   \
                     ros-$ROS_DISTRO-robot-state-publisher
 
+apt-get install python3-rospy
 pip3 install -r python3_requirements.txt
