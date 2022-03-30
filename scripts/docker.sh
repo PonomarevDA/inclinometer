@@ -69,8 +69,7 @@ run() {
 run_interactive() {
     setup_config
     xhost +local:docker
-    #CONTAINER_ID=$(
-    sudo docker container run --rm -it $DOCKER_FLAGS $DOCKER_CONTAINER_NAME /bin/bash #)
+    sudo docker container run --rm -it $DOCKER_FLAGS $DOCKER_CONTAINER_NAME /bin/bash
 }
 
 kill_all_containers() {
