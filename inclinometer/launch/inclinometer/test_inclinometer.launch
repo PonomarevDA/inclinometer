@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
     <include file="$(find inclinometer)/launch/inclinometer/rviz.launch"/>
-    <!-- <include file="$(find inclinometer)/launch/uavcan/uavcan_communicator.launch"/> -->
     <node pkg="inclinometer" type="uav_to_ros_converter.py" name="uav_to_ros_converter" output="screen"/>
 
-    <node pkg="inclinometer" type="tf_broadcaster_node" name="tf_broadcaster_node" output="screen"/>
+    <include file="$(find inclinometer)/launch/inclinometer/inclinometer_model.launch">
+        <arg name="tf_prefix" value="imu1" />
+    </include>
 
-    <node pkg="tf" type="static_transform_publisher" name="inclinometer_to_base_footprint"
-            args="0.0 0.0 0.0 0.0 0.0 0.0 /inclinometer /base_footprint 40" />
-
-    <param name="robot_description" command="$(find xacro)/xacro '$(find inclinometer)/urdf/inclinometer.urdf.xacro'" />
-
-    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" />
+    <include file="$(find inclinometer)/launch/inclinometer/inclinometer_model.launch">
+        <arg name="tf_prefix" value="imu2" />
+    </include>
 </launch>

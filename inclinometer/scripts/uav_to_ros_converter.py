@@ -57,6 +57,7 @@ class RosPublisher:
 
         
         self.pub_1.publish(self.ros_msg)
+        self.pub_2.publish(self.ros_msg)
 
 
 class DroneCanCommunicator:
@@ -185,7 +186,7 @@ if __name__=="__main__":
 
     # Init publisher
     rospy.init_node("ground_station_communicator")
-    publisher = RosPublisher("/inclinometer", "/inclinometer/second")
+    publisher = RosPublisher("/imu1/inclinometer", "/imu2/inclinometer")
 
     # Init communicator
     communicator = None
