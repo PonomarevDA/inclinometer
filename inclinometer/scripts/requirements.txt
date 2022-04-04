@@ -4,4 +4,6 @@ uavcan
 can
 
 # common
+numpy
 coloredlogs
+

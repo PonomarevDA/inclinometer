@@ -21,12 +21,11 @@ DEV_PATH = "/dev/ttyACM0"
 CAN_DEVICE_TYPE = "can-slcan"
 
 class RosPublisher:
-    def __init__(self, topic_1, topic_2):
+    def __init__(self, topic_name):
         self.ros_msg = Imu()
-        self.pub_1 = rospy.Publisher(topic_1, Imu, queue_size=10)
-        self.pub_2 = rospy.Publisher(topic_2, Imu, queue_size=10)
+        self.publisher = rospy.Publisher(topic_name, Imu, queue_size=10)
 
-    def publishFirstImu(self, uavcan_msg):
+    def publishImu(self, uavcan_msg):
         """
         Incoming message structure:
         --------------------------
@@ -56,8 +55,7 @@ class RosPublisher:
         self.ros_msg.linear_acceleration.z = uavcan_msg.linear_acceleration[2]
 
         
-        self.pub_1.publish(self.ros_msg)
-        self.pub_2.publish(self.ros_msg)
+        self.publisher.publish(self.ros_msg)
 
 
 class DroneCanCommunicator:
@@ -65,7 +63,7 @@ class DroneCanCommunicator:
     Simple wrap on droneCan
     Based on example: https://legacy.uavcan.org/Implementations/Pyuavcan/Tutorials/
     """
-    def __init__(self, can_device_type, rosPublisher, node_id=42, node_name="uavcan communicator"):
+    def __init__(self, can_device_type, node_id=42, node_name="uavcan communicator"):
         """
         Simply create a node without starting it.
         param can_device_type - could be 'serial' or 'can-slcan'
@@ -77,7 +75,9 @@ class DroneCanCommunicator:
         self.tx_full_buffer_error = 0
         self.spin_can_error_counter = 0
         self.spin_transfer_error_counter = 0
-        self.rosPublisher = rosPublisher
+        self.IMU_1_publisher =  RosPublisher("/imu1/inclinometer")
+        self.IMU_2_publisher =  RosPublisher("/imu2/inclinometer")
+        self.IMU_3_publisher =  RosPublisher("/imu3/inclinometer")
 
         if can_device_type == "serial":
             kawrgs = {"can_device_name" : DEV_PATH,
@@ -175,7 +175,8 @@ class DroneCanCommunicator:
         #print(event.message.timestamp.usec)
         if event.transfer.source_node_id == 81:
             print("Node id: 81")
-            self.rosPublisher.publishFirstImu(event.message)
+            self.IMU_1_publisher.publishImu(event.message)
+            #self.IMU_2_publisher.publishImu(event.message)
 
 if __name__=="__main__":
     coloredlogs.install()
@@ -186,13 +187,12 @@ if __name__=="__main__":
 
     # Init publisher
     rospy.init_node("ground_station_communicator")
-    publisher = RosPublisher("/imu1/inclinometer", "/imu2/inclinometer")
 
     # Init communicator
     communicator = None
     while communicator is None:
         try:
-            communicator = DroneCanCommunicator(CAN_DEVICE_TYPE, publisher)
+            communicator = DroneCanCommunicator(CAN_DEVICE_TYPE)
         except OSError as e:
             logging.error("{}. Check you device. Trying to reconnect.".format(e))
             time.sleep(2)
