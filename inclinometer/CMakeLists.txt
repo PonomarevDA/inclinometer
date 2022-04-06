@@ -18,7 +18,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(tf_broadcaster_node src/tf_broadcaster.cpp)
+add_executable(tf_broadcaster_node src/tf_broadcaster_new.cpp)
 add_dependencies(tf_broadcaster_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(tf_broadcaster_node
   ${catkin_LIBRARIES}

@@ -2,26 +2,44 @@
 
 import rospy
 from sensor_msgs.msg import Imu
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Pose
 import numpy as np
 
 class QuatToEuler:
-    def __init__(self, imuTopic, publishTopic):
-        self.subscriber = rospy.Subscriber(imuTopic, Imu, self.covertAndPublish)
-        self.publisher = rospy.Publisher(publishTopic, Twist, queue_size=10)
-        self.twist_msg = Twist()
+    def __init__(self):
+        self.subscriber1 = rospy.Subscriber("/imu1/sensordata", Imu, self.Imu1Publish)
+        self.subscriber2 = rospy.Subscriber("/imu2/sensordata", Imu, self.Imu2Publish)
+        self.publisher1 = rospy.Publisher('/imu1/inclinometer', Pose, queue_size=10)
+        self.publisher2 = rospy.Publisher('/imu2/inclinometer', Pose, queue_size=10)
+        self.test_publisher = rospy.Publisher('/data_test', Pose, queue_size=10)
+        self.pose_msg = Pose()
 
-    def covertAndPublish(self, msg):
-        q0 = msg.orientation.w
-        q1 = msg.orientation.x
-        q2 = msg.orientation.y
-        q3 = msg.orientation.z
-        self.twist_msg.angular.x = np.arctan2( (2(q0*q1 + q2*q3)) / (1 - 2(q1*q1 + q2*q2)) )
-        self.twist_msg.angular.y = np.arcsin( 2(q0*q2 - q3*q1) )
-        self.twist_msg.angular.z = np.arctan2( (2(q0*q3 + q1*q2)) / (1 - 2(q2*q2 + q3*q3)) )
-        self.publisher.publish(self.twist_msg)
+    def Imu1Publish(self, msg):
+        self.pose_msg.position.x = 0
+        self.pose_msg.position.y = -1
+        self.pose_msg.position.z = 0
+        self.pose_msg.orientation.w = msg.orientation.w
+        self.pose_msg.orientation.x = msg.orientation.x
+        self.pose_msg.orientation.y = msg.orientation.y
+        self.pose_msg.orientation.z = msg.orientation.z
+        self.publisher1.publish(self.pose_msg)
+        q_r, q_i, q_j, q_k = self.pose_msg.orientation.x, self.pose_msg.orientation.y, self.pose_msg.orientation.z
+        # self.pose_msg.position.x = 2*(q_i*q_k +
+        # self.pose_msg.position.y = -1
+        # self.pose_msg.position.z = 0
+
+    def Imu2Publish(self, msg):
+        self.pose_msg.position.x = 0
+        self.pose_msg.position.y = 1
+        self.pose_msg.position.z = 0
+        self.pose_msg.orientation.w = msg.orientation.w
+        self.pose_msg.orientation.x = msg.orientation.x
+        self.pose_msg.orientation.y = msg.orientation.y
+        self.pose_msg.orientation.z = msg.orientation.z
+        self.publisher2.publish(self.pose_msg)
 
 
 if __name__=="__main__":
-    quatToEuler = QuatToEuler("/imu1/inclinometer", "/converted/euler")
+    rospy.init_node("IMU_to_euler_converter")
+    quatToEuler = QuatToEuler()
     rospy.spin()

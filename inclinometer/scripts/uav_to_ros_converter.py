@@ -75,9 +75,9 @@ class DroneCanCommunicator:
         self.tx_full_buffer_error = 0
         self.spin_can_error_counter = 0
         self.spin_transfer_error_counter = 0
-        self.IMU_1_publisher =  RosPublisher("/imu1/inclinometer")
-        self.IMU_2_publisher =  RosPublisher("/imu2/inclinometer")
-        self.IMU_3_publisher =  RosPublisher("/imu3/inclinometer")
+        self.IMU_1_publisher =  RosPublisher("/imu1/sensordata")
+        self.IMU_2_publisher =  RosPublisher("/imu2/sensordata")
+        self.IMU_3_publisher =  RosPublisher("/imu3/sensordata")
 
         if can_device_type == "serial":
             kawrgs = {"can_device_name" : DEV_PATH,
@@ -171,12 +171,10 @@ class DroneCanCommunicator:
         linear_acceleration_covariance: []
         --------------------------
         """
-        #print("Source node id: ", event.transfer.source_node_id)
-        #print(event.message.timestamp.usec)
         if event.transfer.source_node_id == 81:
-            print("Node id: 81")
             self.IMU_1_publisher.publishImu(event.message)
-            #self.IMU_2_publisher.publishImu(event.message)
+        elif event.transfer.source_node_id == 82:
+            self.IMU_2_publisher.publishImu(event.message)
 
 if __name__=="__main__":
     coloredlogs.install()
@@ -197,19 +195,16 @@ if __name__=="__main__":
             logging.error("{}. Check you device. Trying to reconnect.".format(e))
             time.sleep(2)
     logging.warning("UavcanCommunicatorV0 has been successfully created")
-    
-    # Register subscriber just for logging communcation status
-    #data_type = uavcan.protocol.NodeStatus
-    #callback = lambda event: print(event)
-    #communicator.subscribe(data_type, callback)
 
     # Prepare publisher
     geodetioc_pose = [int(55.7544426 * 100000000),
                       int(48.742684 * 100000000),
                       int(-6.5 * 1000)]
+
     ned_velocity = [0.0,
                     0.0,
                     0.0]
+
     msg = uavcan.equipment.gnss.Fix(latitude_deg_1e8=geodetioc_pose[0],
                                     longitude_deg_1e8=geodetioc_pose[1],
                                     height_msl_mm=geodetioc_pose[2],

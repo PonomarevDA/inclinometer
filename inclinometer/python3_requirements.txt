@@ -7,3 +7,4 @@ pyyaml
 rospkg
 future
 coloredlogs
+numpy
