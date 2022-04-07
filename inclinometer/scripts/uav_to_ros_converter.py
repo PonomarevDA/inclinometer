@@ -10,7 +10,7 @@ import sys
 import serial
 import dronecan
 from dronecan import uavcan
-import can
+#import can
 import queue
 
 import rospy
