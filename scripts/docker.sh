@@ -68,6 +68,7 @@ run() {
 
 run_interactive() {
     setup_config
+    xhost +local:docker
     sudo docker container run --rm -it $DOCKER_FLAGS $DOCKER_CONTAINER_NAME /bin/bash
 }
 
