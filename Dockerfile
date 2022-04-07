@@ -29,7 +29,6 @@ RUN ./install_requirements.sh
 # Install inclinometer package
 COPY inclinometer/      inclinometer/
 COPY scripts/           scripts/
-#  RUN ./inclinometer/install_requirements.sh
 
 RUN source /opt/ros/$ROS_DISTRO/setup.bash  && cd ../../ && catkin build
 

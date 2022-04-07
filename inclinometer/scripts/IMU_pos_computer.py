@@ -72,9 +72,15 @@ class NodePositionComputer:
         q2 = self.imu_pose_msg[0].orientation.y
         q3 = self.imu_pose_msg[0].orientation.z
 
-        # self.test_msg.position.x = np.atan2(2*(q0*q1 + q2*q3), (1 - 2*(q1*q1 + q2*q2))) * 180 / np.pi
-        # self.test_msg.position.y = np.asin(2 * (q0*q2 - q3*q1)) * 180 / np.pi
-        # self.test_msg.position.z = np.atan2(2 * (q0*q3 + q2*q1), (1 - 2*(q2*q2 + q3*q3))) * 180 / np.pi
+        self.test_msg.position.x = np.arctan2(2*(q0*q1 + q2*q3), (1 - 2*(q1*q1 + q2*q2))) * 180 / np.pi
+        self.test_msg.position.z = np.arctan2(2 * (q0*q3 + q2*q1), (1 - 2*(q2*q2 + q3*q3))) * 180 / np.pi
+        
+        sin_val = 2 * (q0*q2 - q3*q1)
+        if sin_val > 1:
+            sin_val = 1
+        elif sin_val < -1:
+            sin_val = -1
+        self.test_msg.position.y = np.arcsin(sin_val) * 180 / np.pi
         self.test_publisher.publish(self.test_msg)
 
 if __name__=="__main__":

@@ -8,10 +8,9 @@ import sys
 
 # For uavcan v0.1
 import serial
-#import uavcan  - old version 
 import dronecan
 from dronecan import uavcan
-#import can
+import can
 import queue
 
 import rospy
@@ -195,23 +194,6 @@ if __name__=="__main__":
             logging.error("{}. Check you device. Trying to reconnect.".format(e))
             time.sleep(2)
     logging.warning("UavcanCommunicatorV0 has been successfully created")
-
-    # Prepare publisher
-    geodetioc_pose = [int(55.7544426 * 100000000),
-                      int(48.742684 * 100000000),
-                      int(-6.5 * 1000)]
-
-    ned_velocity = [0.0,
-                    0.0,
-                    0.0]
-
-    msg = uavcan.equipment.gnss.Fix(latitude_deg_1e8=geodetioc_pose[0],
-                                    longitude_deg_1e8=geodetioc_pose[1],
-                                    height_msl_mm=geodetioc_pose[2],
-                                    ned_velocity=ned_velocity,
-                                    sats_used=10,
-                                    status=3,
-                                    pdop=99)
 
     try:                                
         while True:
