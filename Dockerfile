@@ -22,10 +22,14 @@ RUN git clone https://github.com/InnopolisAero/uavcan_communicator.git --recursi
     ./scripts/install_requirements.sh                                                       &&  \
     ./scripts/install_libuavcan.sh
 
+COPY ./inclinometer/install_requirements.sh  install_requirements.sh
+COPY ./inclinometer/python3_requirements.txt python3_requirements.txt
+RUN ./install_requirements.sh
+
 # Install inclinometer package
 COPY inclinometer/      inclinometer/
 COPY scripts/           scripts/
-RUN ./inclinometer/install_requirements.sh
+#  RUN ./inclinometer/install_requirements.sh
 
 RUN source /opt/ros/$ROS_DISTRO/setup.bash  && cd ../../ && catkin build
 
