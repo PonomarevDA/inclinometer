@@ -27,10 +27,14 @@ COPY ./inclinometer/python3_requirements.txt python3_requirements.txt
 RUN ./install_requirements.sh
 
 # Install inclinometer package
+COPY inclinometer/install_requirements.sh       inclinometer/install_requirements.sh
+COPY inclinometer/python3_requirements.txt      inclinometer/python3_requirements.txt
+RUN ./inclinometer/install_requirements.sh
+
+RUN apt-get install -y ros-$ROS_DISTRO-joint-state-publisher-gui
 COPY inclinometer/      inclinometer/
 COPY scripts/           scripts/
 
 RUN source /opt/ros/$ROS_DISTRO/setup.bash  && cd ../../ && catkin build
-
 CMD echo "main process has been started"            &&  \
     echo "container has been finished"

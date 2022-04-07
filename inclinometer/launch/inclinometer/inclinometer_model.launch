@@ -10,7 +10,7 @@
         <node pkg="tf" type="static_transform_publisher" name="inclinometer_to_base_footprint"
                 args="0.0 0.0 0.0 0.0 0.0 0.0 $(arg tf_prefix)/inclinometer $(arg tf_prefix)/base_footprint 40" />
 
-        <param name="robot_description" command="$(find xacro)/xacro '$(find inclinometer)/urdf/inclinometer.urdf.xacro'" />
+        <param name="robot_description" command="$(find xacro)/xacro '$(find inclinometer)/urdf/yelldozer.urdf.xacro'" />
         <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" />
     </group>
 </launch>
