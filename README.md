@@ -7,23 +7,7 @@ This is ROS-package that allows you to visualize inclinometer position and orien
 - ubuntu 18.04
 - ros melodic
 
-## Dependencies
-
-- [uavcan_communicator](https://github.com/InnopolisAero/uavcan_communicator/tree/02f68e80345714dbf2e7e9a9d850cefd5fdc7d0f)
-
 ## How to use it
-
-First of all, you need to clone this repository with (important) submodules:
-
-```bash
-git clone https://github.com/PonomarevDA/inclinometer --recursive
-```
-
-Don't forget to update submodules after each pull. Or call this command if you forget to add `--recursive` in previous command:
-
-```bash
-git submodule update --init --recursive
-```
 
 The easiest way to play with this package is to use [scripts/docker.sh](scripts/docker.sh) script.
 
