@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <include file="$(find inclinometer)/launch/inclinometer/yelldozer_rviz.launch"/>
+    <node pkg="inclinometer" type="uav_to_ros_converter.py" name="uav_to_ros_converter" output="screen" required="true"/>
+    <node pkg="inclinometer" type="IMU_pos_computer.py" name="IMU_pos_computer" output="screen" required="true"/>
+
+    <include file="$(find inclinometer)/launch/inclinometer/yelldozer_model.launch">
+        <arg name="tf_prefix" value="yelldozer" />
+    </include>
+    <group ns="yelldozer">
+        <node pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" name="joint_state_publisher_gui" output="screen"/>
+    </group>
+</launch>

@@ -9,7 +9,7 @@ class NodePositionComputer:
     def __init__(self):
         self.subscriber1 = rospy.Subscriber("/imu1/sensordata", Imu, self.Imu1Publish)
         self.subscriber2 = rospy.Subscriber("/imu2/sensordata", Imu, self.Imu2Publish)
-        self.publisher1 = rospy.Publisher('/imu1/inclinometer', Pose, queue_size=10)
+        self.publisher1 = rospy.Publisher('/yelldozer/inclinometer', Pose, queue_size=10)
         self.publisher2 = rospy.Publisher('/imu2/inclinometer', Pose, queue_size=10)
         self.test_publisher = rospy.Publisher('/data_test', Pose, queue_size=10)
         self.imu_pose_msg = [Pose() for i in range(3)]
