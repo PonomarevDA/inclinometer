@@ -7,7 +7,4 @@
     <include file="$(find inclinometer)/launch/inclinometer/yelldozer_model.launch">
         <arg name="tf_prefix" value="yelldozer" />
     </include>
-    <group ns="yelldozer">
-        <node pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" name="joint_state_publisher_gui" output="screen"/>
-    </group>
 </launch>
