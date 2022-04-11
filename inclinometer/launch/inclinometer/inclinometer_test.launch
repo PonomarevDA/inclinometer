@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
-    <include file="$(find inclinometer)/launch/inclinometer/rviz.launch"/>
+    <include file="$(find inclinometer)/launch/inclinometer/inclinometer_rviz.launch"/>
     <node pkg="inclinometer" type="uav_to_ros_converter.py" name="uav_to_ros_converter" output="screen"/>
     <node pkg="inclinometer" type="IMU_pos_computer.py" name="IMU_pos_computer" output="screen"/>
 

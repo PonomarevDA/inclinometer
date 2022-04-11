@@ -1,0 +1,162 @@
+<?xml version="1.0"?>
+<robot name="yelldozer" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:property name="WHEEL_X"            value="0.20" />
+  <xacro:property name="WHEEL_Y"            value="0.20" />
+  <xacro:property name="WHEEL_Z"            value="0.05" />
+
+  <xacro:property name="ROBOT_BASE_X"       value="0.15" />
+  <xacro:property name="ROBOT_BASE_Y"       value="0.15" />
+  <xacro:property name="ROBOT_BASE_Z"       value="0.15" />
+
+  <xacro:property name="GRIPPER_X"          value="0.20" />
+  <xacro:property name="GRIPPER_Y"          value="0.20" />
+  <xacro:property name="GRIPPER_Z"          value="0.02" />
+
+  <xacro:property name="BUCKET_X"           value="0.10" />
+  <xacro:property name="BUCKET_Y"           value="0.20" />
+  <xacro:property name="BUCKET_Z"           value="0.02" />
+
+  <material name="red">
+    <color rgba="1.0 0.0 0.0 1.0"/>
+  </material>
+  <material name="green">
+    <color rgba="0.0 1.0 0.0 1.0"/>
+  </material>
+  <material name="yellow">
+    <color rgba="1.0 1.0 0.0 1.0"/>
+  </material>
+  <material name="grey">
+    <color rgba="0.5 0.5 0.5 1.0"/>
+  </material>
+  <material name="white">
+    <color rgba="1.0 1.0 1.0 1.0"/>
+  </material>
+
+  <link name="base_footprint"/>
+
+  <link name="wheel_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0.0 0 0.0"/>
+      <geometry>
+        <box size="${WHEEL_X} ${WHEEL_Y} ${WHEEL_Z}"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${WHEEL_X} ${WHEEL_Y} ${WHEEL_Z}"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="wheel_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="wheel_link"/>
+    <origin xyz="0 0 ${WHEEL_Z / 2}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0.0 0 0.0"/>
+      <geometry>
+        <box size="${ROBOT_BASE_X} ${ROBOT_BASE_Y} ${ROBOT_BASE_Z}"/>
+      </geometry>
+      <material name="yellow"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${ROBOT_BASE_X} ${ROBOT_BASE_Y} ${ROBOT_BASE_Z}"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="base_joint" type="fixed">
+    <parent link="wheel_link"/>
+    <child link="base_link"/>
+    <origin xyz="${(WHEEL_X - ROBOT_BASE_X) / 2} 0.0 ${WHEEL_Z / 2 + ROBOT_BASE_Z / 2}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="gripper_shaft">
+    <visual>
+      <origin xyz="0 0 0" rpy="1.57 0 0"/>
+      <geometry>
+        <cylinder radius="0.005" length="${GRIPPER_Y * 1.1}" />
+      </geometry>
+      <material name="red"/>
+    </visual>
+  </link>
+  <joint name="gripper_shaft_joint" type="revolute">
+    <axis xyz="0 1 0"/>
+    <limit effort="1000.0" lower="-1.57" upper="0.0" velocity="0.5"/>
+    <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
+    <parent link="base_link"/>
+    <child link="gripper_shaft"/>
+  </joint>
+
+  <link name="gripper_first_left">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${GRIPPER_X} ${(GRIPPER_Y - ROBOT_BASE_Y) / 2} ${GRIPPER_Z}"/>
+      </geometry>
+      <material name="yellow"/>
+    </visual>
+  </link>
+  <joint name="gripper_first_left_joint" type="fixed">
+    <axis xyz="0 1 0"/>
+    <origin rpy="0 0 0" xyz="${GRIPPER_X / 2} ${(GRIPPER_Y + ROBOT_BASE_Y) / 4} 0.0"/>
+    <parent link="gripper_shaft"/>
+    <child link="gripper_first_left"/>
+  </joint>
+
+  <link name="gripper_first_right">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${GRIPPER_X} ${(GRIPPER_Y - ROBOT_BASE_Y) / 2} ${GRIPPER_Z}"/>
+      </geometry>
+      <material name="yellow"/>
+    </visual>
+  </link>
+  <joint name="gripper_joint_right" type="fixed">
+    <axis xyz="0 1 0"/>
+    <origin rpy="0 0 0" xyz="${GRIPPER_X / 2} ${-1 * (GRIPPER_Y + ROBOT_BASE_Y) / 4} 0.0"/>
+    <parent link="gripper_shaft"/>
+    <child link="gripper_first_right"/>
+  </joint>
+
+  <link name="bucket_shaft">
+    <visual>
+      <origin xyz="0 0 0" rpy="1.57 0 0"/>
+      <geometry>
+        <cylinder radius="0.005" length="${BUCKET_Y * 1.1}" />
+      </geometry>
+      <material name="red"/>
+    </visual>
+  </link>
+  <joint name="bucket_shaft_joint" type="revolute">
+    <axis xyz="0 1 0"/>
+    <limit effort="1000.0" lower="-1.57" upper="+1.57" velocity="0.5"/>
+    <origin rpy="0 0 0" xyz="${GRIPPER_X / 2} ${-1 * (GRIPPER_Y + ROBOT_BASE_Y) / 4} 0.0"/>
+    <parent link="gripper_first_left"/>
+    <child link="bucket_shaft"/>
+  </joint>
+
+  <link name="bucket">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${BUCKET_X} ${BUCKET_Y} ${BUCKET_Z}"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+  </link>
+  <joint name="bucket_joint" type="fixed">
+    <axis xyz="0 1 0"/>
+    <origin rpy="0 0 0" xyz="${BUCKET_X / 2} 0.0 0.0"/>
+    <parent link="bucket_shaft"/>
+    <child link="bucket"/>
+  </joint>
+
+</robot>

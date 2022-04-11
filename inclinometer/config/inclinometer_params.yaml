@@ -1,4 +1,0 @@
-uavcan_node_id:           42
-uavcan_node_name:         "inclinometer"
-bridges:                  ["AhrsSolutionUavcanToRos",     "/inclinometer"
-]

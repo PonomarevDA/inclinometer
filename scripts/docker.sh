@@ -62,7 +62,7 @@ push_docker_image() {
 run() {
     setup_config
     xhost +local:docker
-    CONTAINER_ID=$(sudo docker container run --rm $DOCKER_FLAGS $DOCKER_CONTAINER_NAME ./inclinometer/scripts/run_inclinometer.sh)
+    sudo docker container run --rm $DOCKER_FLAGS $DOCKER_CONTAINER_NAME ./inclinometer/scripts/run_inclinometer.sh
     # host=$(docker inspect --format='{{ .Config.Hostname }}' $DOCKER_CONTAINER_NAME)
 }
 
