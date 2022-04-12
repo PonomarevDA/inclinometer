@@ -174,6 +174,8 @@ class DroneCanCommunicator:
             self.IMU_1_publisher.publishImu(event.message)
         elif event.transfer.source_node_id == 82:
             self.IMU_2_publisher.publishImu(event.message)
+        elif event.transfer.source_node_id == 83:
+            self.IMU_3_publisher.publishImu(event.message)
 
 if __name__=="__main__":
     coloredlogs.install()

@@ -3,7 +3,7 @@
 import rospy
 from sensor_msgs.msg import Imu
 from sensor_msgs.msg import JointState
-#from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Pose
 import numpy as np
 
 class NodePositionComputer:
@@ -13,8 +13,9 @@ class NodePositionComputer:
         self.subscriber2 = rospy.Subscriber("/imu3/sensordata", Imu, self.Imu3Callback)
         self.publisher1 = rospy.Publisher('/yelldozer/inclinometer', JointState, queue_size=10)
         #self.publisher2 = rospy.Publisher('/imu2/inclinometer', Pose, queue_size=10)
-        #self.test_publisher = rospy.Publisher('/data_test', Pose, queue_size=10)
+        self.test_publisher = rospy.Publisher('/data_test', Pose, queue_size=10)
         self.imu_recv_msg = [Imu() for i in range(3)]
+        self.test_msg = Pose()
         self.setup()
 
     def setup(self):
@@ -44,25 +45,30 @@ class NodePositionComputer:
         #     self.imu_pose_msg[idx].position.y = 0.3
         #     self.publisher2.publish(self.imu_pose_msg[idx]) 
 
+    def getAngle(self, idx):
+        q0 = self.imu_recv_msg[idx].orientation.w
+        q1 = self.imu_recv_msg[idx].orientation.x
+        q2 = self.imu_recv_msg[idx].orientation.y
+        q3 = self.imu_recv_msg[idx].orientation.z
+        
+        return np.arctan2(2*(q0*q1 + q2*q3), (1 - 2*(q1*q1 + q2*q2)))
+
+
     def sendJointPos(self, event=None):
         # first imu
-        q0 = self.imu_pose_msg[0].orientation.w
-        q1 = self.imu_pose_msg[0].orientation.x
-        q2 = self.imu_pose_msg[0].orientation.y
-        q3 = self.imu_pose_msg[0].orientation.z
-
-        imu1_angle = np.arctan2(2*(q0*q1 + q2*q3), (1 - 2*(q1*q1 + q2*q2))) * 180 / np.pi
+        imu1_angle = self.getAngle(0)
 
         # second imu
-        q0 = self.imu_pose_msg[1].orientation.w
-        q1 = self.imu_pose_msg[1].orientation.x
-        q2 = self.imu_pose_msg[1].orientation.y
-        q3 = self.imu_pose_msg[1].orientation.z
+        imu2_angle = self.getAngle(1) 
+        #imu2_angle = imu1_angle - imu2_angle
 
-        imu2_angle = np.arctan2(2*(q0*q1 + q2*q3), (1 - 2*(q1*q1 + q2*q2))) * 180 / np.pi
+        # third imu
+        imu3_angle = self.getAngle(2)
+        #imu3_angle = imu1_angle - imu3_angle
 
-        self.test_msg.position.x = imu1_angle - imu2_angle
-
+        self.test_msg.position.x = imu1_angle
+        self.test_msg.position.y = imu2_angle
+        self.test_msg.position.z = imu3_angle
         self.test_publisher.publish(self.test_msg)
 
 if __name__=="__main__":
