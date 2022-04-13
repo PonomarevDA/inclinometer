@@ -189,16 +189,16 @@ if __name__=="__main__":
 
     # Init communicator
     communicator = None
-    while communicator is None:
+    while communicator is None and not rospy.is_shutdown():
         try:
             communicator = DroneCanCommunicator(CAN_DEVICE_TYPE)
         except OSError as e:
-            logging.error("{}. Check you device. Trying to reconnect.".format(e))
+            rospy.logerr("{}. Check you device. Trying to reconnect.".format(e))
             time.sleep(2)
-    logging.warning("UavcanCommunicatorV0 has been successfully created")
+    rospy.logerr("UavcanCommunicatorV0 has been successfully created")
 
     try:                                
-        while True:
+        while not rospy.is_shutdown():
             communicator.spin(0.2)
     except KeyboardInterrupt:
         print("Interrupt occurs")
