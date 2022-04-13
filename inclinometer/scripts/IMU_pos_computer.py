@@ -9,8 +9,8 @@ class NodePositionComputer:
     def __init__(self):
         self.subscriber1 = rospy.Subscriber("/imu1/sensordata", Imu, self.Imu1Callback)
         self.subscriber2 = rospy.Subscriber("/imu2/sensordata", Imu, self.Imu2Callback)
-        self.subscriber2 = rospy.Subscriber("/imu3/sensordata", Imu, self.Imu3Callback)
-        self.Joint_pub = rospy.Publisher('/yelldozer/inclinometer', JointState, queue_size=10)
+        self.subscriber3 = rospy.Subscriber("/imu3/sensordata", Imu, self.Imu3Callback)
+        self.Joint_pub = rospy.Publisher('/yelldozer/joint_states', JointState, queue_size=10)
         self.imu_recv_msg = [Imu() for i in range(3)]
         self.JointState_msg = JointState()
         self.setup()
@@ -49,6 +49,8 @@ class NodePositionComputer:
         imu3_angle = self.getAngle(2)
         imu3_angle = imu1_angle - imu3_angle - imu2_angle
 
+        self.JointState_msg.header.seq += 1
+        self.JointState_msg.header.stamp = rospy.Time.now()
         self.JointState_msg.position = [imu2_angle, imu3_angle]
 
         self.Joint_pub.publish(self.JointState_msg)
