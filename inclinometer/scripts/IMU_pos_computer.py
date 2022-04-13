@@ -3,7 +3,6 @@
 import rospy
 from sensor_msgs.msg import Imu
 from sensor_msgs.msg import JointState
-from geometry_msgs.msg import Pose
 import numpy as np
 
 class NodePositionComputer:
@@ -11,39 +10,23 @@ class NodePositionComputer:
         self.subscriber1 = rospy.Subscriber("/imu1/sensordata", Imu, self.Imu1Callback)
         self.subscriber2 = rospy.Subscriber("/imu2/sensordata", Imu, self.Imu2Callback)
         self.subscriber2 = rospy.Subscriber("/imu3/sensordata", Imu, self.Imu3Callback)
-        self.publisher1 = rospy.Publisher('/yelldozer/inclinometer', JointState, queue_size=10)
-        #self.publisher2 = rospy.Publisher('/imu2/inclinometer', Pose, queue_size=10)
-        self.test_publisher = rospy.Publisher('/data_test', Pose, queue_size=10)
+        self.Joint_pub = rospy.Publisher('/yelldozer/inclinometer', JointState, queue_size=10)
         self.imu_recv_msg = [Imu() for i in range(3)]
-        self.test_msg = Pose()
+        self.JointState_msg = JointState()
         self.setup()
 
     def setup(self):
+        self.JointState_msg.name = ["gripper_shaft_joint", "bucket_shaft_joint"]
         rospy.Timer(rospy.Duration(1.0 / 10.0), self.sendJointPos)
 
     def Imu1Callback(self, msg):
-        self.saveRecvMsg(msg, 0)
+        self.imu_recv_msg[0] = msg
 
     def Imu2Callback(self, msg):
-        self.saveRecvMsg(msg, 1)
+        self.imu_recv_msg[1] = msg
 
     def Imu3Callback(self, msg):
-        self.saveRecvMsg(msg, 2)
-
-    def saveRecvMsg(self, msg, idx):
-        self.imu_recv_msg[idx] = msg
-        # self.imu_pose_msg[idx].position.x = 0
-        # self.imu_pose_msg[idx].position.z = 0
-        # self.imu_pose_msg[idx].orientation.w = msg.orientation.w
-        # self.imu_pose_msg[idx].orientation.x = msg.orientation.x
-        # self.imu_pose_msg[idx].orientation.y = msg.orientation.y
-        # self.imu_pose_msg[idx].orientation.z = msg.orientation.z
-        # if idx == 0 :
-        #     self.imu_pose_msg[idx].position.y = -0.3
-        #     self.publisher1.publish(self.imu_pose_msg[idx])
-        # elif idx == 1:
-        #     self.imu_pose_msg[idx].position.y = 0.3
-        #     self.publisher2.publish(self.imu_pose_msg[idx]) 
+        self.imu_recv_msg[2] = msg
 
     def getAngle(self, idx):
         q0 = self.imu_recv_msg[idx].orientation.w
@@ -60,16 +43,15 @@ class NodePositionComputer:
 
         # second imu
         imu2_angle = self.getAngle(1) 
-        #imu2_angle = imu1_angle - imu2_angle
+        imu2_angle = imu1_angle - imu2_angle 
 
         # third imu
         imu3_angle = self.getAngle(2)
-        #imu3_angle = imu1_angle - imu3_angle
+        imu3_angle = imu1_angle - imu3_angle - imu2_angle
 
-        self.test_msg.position.x = imu1_angle
-        self.test_msg.position.y = imu2_angle
-        self.test_msg.position.z = imu3_angle
-        self.test_publisher.publish(self.test_msg)
+        self.JointState_msg.position = [imu2_angle, imu3_angle]
+
+        self.Joint_pub.publish(self.JointState_msg)
 
 if __name__=="__main__":
     rospy.init_node("IMU_to_euler_converter")
