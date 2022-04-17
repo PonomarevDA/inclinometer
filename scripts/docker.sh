@@ -19,7 +19,7 @@ help            Print this message and exit"
 
 setup_config() {
     TAG_NAME=v0.0.1
-    DOCKERHUB_REPOSITOTY=ponomarevda/inclinometer
+    DOCKERHUB_REPOSITOTY=ponomarevda/yelldozer
     if uname -m | grep -q 'aarch64'; then
         TAG_NAME="$TAG_NAME""arm64"
     elif uname -m | grep -q 'x86_64'; then
@@ -62,7 +62,8 @@ push_docker_image() {
 run() {
     setup_config
     xhost +local:docker
-    sudo docker container run --rm $DOCKER_FLAGS $DOCKER_CONTAINER_NAME ./inclinometer/scripts/run_inclinometer.sh
+    # sudo docker container run --rm $DOCKER_FLAGS $DOCKER_CONTAINER_NAME ./inclinometer/scripts/run_inclinometer.sh
+    sudo docker container run --rm $DOCKER_FLAGS $DOCKER_CONTAINER_NAME ./yellDozer/scripts/run_yellDozer.sh
     # host=$(docker inspect --format='{{ .Config.Hostname }}' $DOCKER_CONTAINER_NAME)
 }
 
@@ -75,7 +76,6 @@ run_interactive() {
 kill_all_containers() {
     sudo docker kill $(sudo docker ps -q)
 }
-
 
 cd "$(dirname "$0")"
 

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <include file="$(find yellDozer)/launch/yellDozer/yelldozer_rviz.launch"/>
+    <node pkg="yellDozer" type="uav_to_ros_converter.py" name="uav_to_ros_converter" output="screen" required="true"/>
+    <node pkg="yellDozer" type="IMU_pos_computer.py" name="IMU_pos_computer" output="screen" required="true"/>
+
+    <include file="$(find yellDozer)/launch/yellDozer/yelldozer_model.launch">
+        <arg name="tf_prefix" value="yelldozer" />
+    </include>
+</launch>
