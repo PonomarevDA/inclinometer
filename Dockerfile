@@ -21,6 +21,7 @@ COPY ./yellDozer/python3_requirements.txt python3_requirements.txt
 RUN ./install_requirements.sh
 
 COPY yellDozer/      yellDozer/
+COPY inclinometer/   inclinometer/
 RUN source /opt/ros/$ROS_DISTRO/setup.bash  && cd ../../ && catkin build
 
 COPY scripts/           scripts/
