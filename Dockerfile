@@ -12,11 +12,16 @@ RUN apt-get update                          &&  \
                         python3-catkin-tools
 RUN if [[ "$ROS_DISTRO" = "melodic" ]] ; then apt-get install -y python-pip python-catkin-tools ; fi
 
-COPY ./inclinometer/install_requirements.sh  install_requirements.sh
-COPY ./inclinometer/python3_requirements.txt python3_requirements.txt
+# COPY ./inclinometer/install_requirements.sh  install_requirements.sh
+# COPY ./inclinometer/python3_requirements.txt python3_requirements.txt
+# RUN ./install_requirements.sh
+
+COPY ./yellDozer/install_requirements.sh  install_requirements.sh
+COPY ./yellDozer/python3_requirements.txt python3_requirements.txt
 RUN ./install_requirements.sh
 
-COPY inclinometer/      inclinometer/
+COPY yellDozer/      yellDozer/
+COPY inclinometer/   inclinometer/
 RUN source /opt/ros/$ROS_DISTRO/setup.bash  && cd ../../ && catkin build
 
 COPY scripts/           scripts/

@@ -6,4 +6,5 @@ set -e
 
 echo DEV_PATH_SYMLINK:$DEV_PATH_SYMLINK
 ./../../scripts/uavcan_tools/create_slcan_from_serial.sh $DEV_PATH_SYMLINK
+export PYTHONUNBUFFERED=1
 roslaunch inclinometer yelldozer_test.launch

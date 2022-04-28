@@ -143,7 +143,7 @@ class DroneCanCommunicator:
                 self.node.spin()
             else:
                 self.node.spin(period)
-        except uavcan.transport.TransferError as e:
+        except dronecan.transport.TransferError as e:
             self.spin_transfer_error_counter += 1
             logging.error("spin uavcan.transport.TransferError {}, №{}".format(
                         e, self.spin_transfer_error_counter))
@@ -174,6 +174,8 @@ class DroneCanCommunicator:
             self.IMU_1_publisher.publishImu(event.message)
         elif event.transfer.source_node_id == 82:
             self.IMU_2_publisher.publishImu(event.message)
+        elif event.transfer.source_node_id == 83:
+            self.IMU_3_publisher.publishImu(event.message)
 
 if __name__=="__main__":
     coloredlogs.install()
@@ -187,16 +189,16 @@ if __name__=="__main__":
 
     # Init communicator
     communicator = None
-    while communicator is None:
+    while communicator is None and not rospy.is_shutdown():
         try:
             communicator = DroneCanCommunicator(CAN_DEVICE_TYPE)
         except OSError as e:
-            logging.error("{}. Check you device. Trying to reconnect.".format(e))
+            rospy.logerr("{}. Check you device. Trying to reconnect.".format(e))
             time.sleep(2)
-    logging.warning("UavcanCommunicatorV0 has been successfully created")
+    rospy.logerr("UavcanCommunicatorV0 has been successfully created")
 
     try:                                
-        while True:
+        while not rospy.is_shutdown():
             communicator.spin(0.2)
     except KeyboardInterrupt:
         print("Interrupt occurs")

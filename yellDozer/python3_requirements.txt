@@ -1,0 +1,11 @@
+# uavcan
+pyserial
+dronecan
+
+# common
+pyyaml
+rospkg
+future
+coloredlogs
+numpy
+netifaces
