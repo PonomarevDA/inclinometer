@@ -143,7 +143,7 @@ class DroneCanCommunicator:
                 self.node.spin()
             else:
                 self.node.spin(period)
-        except uavcan.transport.TransferError as e:
+        except dronecan.transport.TransferError as e:
             self.spin_transfer_error_counter += 1
             logging.error("spin uavcan.transport.TransferError {}, №{}".format(
                         e, self.spin_transfer_error_counter))

@@ -13,5 +13,6 @@ apt-get install -y  python3-pip                             \
                     ros-$ROS_DISTRO-xacro                   \
                     ros-$ROS_DISTRO-robot-state-publisher   \
                     ros-$ROS_DISTRO-joint-state-publisher-gui   \
+                    socat                                   \
 
 pip3 install -r python3_requirements.txt
