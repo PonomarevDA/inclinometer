@@ -70,7 +70,7 @@ run() {
 run_interactive() {
     setup_config
     xhost +local:docker
-    sudo docker container run --rm -it $DOCKER_FLAGS $DOCKER_CONTAINER_NAME /bin/bash
+    sudo docker container run --rm -it $DOCKER_FLAGS -v /dev/bus/usb:/dev/bus/usb $DOCKER_CONTAINER_NAME /bin/bash
 }
 
 kill_all_containers() {
