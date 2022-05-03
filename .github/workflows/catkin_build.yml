@@ -1,0 +1,26 @@
+name: catkin_build
+
+on: [push]
+
+defaults:
+  run:
+    shell: bash
+jobs:
+  catkin_build:
+    runs-on: ubuntu-20.04
+    container:
+      image: ros:noetic
+    steps:
+      - name: Install basic ROS requirements
+        run: |
+          apt-get update && \
+          apt-get install -y python3-pip ros-noetic-catkin python3-catkin-tools
+      - uses: actions/checkout@v2
+        with:
+          path: catkin_ws/src/inclinometer
+
+      - name: Install the package requirements
+        run: ./catkin_ws/src/inclinometer/yellDozer/install_requirements.sh
+
+      - name: catkin build
+        run: source /opt/ros/noetic/setup.bash && cd catkin_ws && catkin build
