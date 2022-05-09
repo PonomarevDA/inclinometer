@@ -1,13 +1,18 @@
+"""
+This module contains can handler and ros handler parts.
+Can handler class receives imu data from slcan.
+Ros handler converts imu data to ros message and publish
+each imu to separate topic.
+"""
 #!/usr/bin/env python3
 
 # Common
 import logging
-import coloredlogs, logging
+import coloredlogs
 import time
 import sys
 
 # For uavcan v0.1
-import serial
 import dronecan
 from dronecan import uavcan
 #import can
@@ -20,26 +25,21 @@ DEV_PATH = "/dev/ttyACM0"
 CAN_DEVICE_TYPE = "can-slcan"
 
 class RosPublisher:
+    """
+    Class used for publishing particular imu data.
+    It converts incoming uavcan message to ros Imu message
+    """
     def __init__(self, topic_name):
         self.ros_msg = Imu()
         self.publisher = rospy.Publisher(topic_name, Imu, queue_size=10)
 
-    def publishImu(self, uavcan_msg):
+    def publish_imu(self, uavcan_msg):
         """
-        Incoming message structure:
-        --------------------------
-        timestamp: 
-            usec: 28128
-        orientation_xyzw: [0.9888, 0.1210, -0.0034, 0.0872]
-        orientation_covariance: []
-        angular_velocity: [-0.0083, 0.0043, 0.0112]
-        angular_velocity_covariance: []
-        linear_acceleration: [-0.3149, 1.8408, -10.5703]
-        linear_acceleration_covariance: []
-        --------------------------
+        Function converts incoming uavcan message to ros Imu message
+        and publish it.
         """
         self.ros_msg.header.stamp = rospy.Time.now()
-        
+
         self.ros_msg.orientation.x = uavcan_msg.orientation_xyzw[0]
         self.ros_msg.orientation.y = uavcan_msg.orientation_xyzw[1]
         self.ros_msg.orientation.z = uavcan_msg.orientation_xyzw[2]
@@ -53,7 +53,6 @@ class RosPublisher:
         self.ros_msg.linear_acceleration.y = uavcan_msg.linear_acceleration[1]
         self.ros_msg.linear_acceleration.z = uavcan_msg.linear_acceleration[2]
 
-        
         self.publisher.publish(self.ros_msg)
 
 
@@ -74,9 +73,9 @@ class DroneCanCommunicator:
         self.tx_full_buffer_error = 0
         self.spin_can_error_counter = 0
         self.spin_transfer_error_counter = 0
-        self.IMU_1_publisher =  RosPublisher("/imu1/sensordata")
-        self.IMU_2_publisher =  RosPublisher("/imu2/sensordata")
-        self.IMU_3_publisher =  RosPublisher("/imu3/sensordata")
+        self.imu_1_publisher =  RosPublisher("/imu1/sensordata")
+        self.imu_2_publisher =  RosPublisher("/imu2/sensordata")
+        self.imu_3_publisher =  RosPublisher("/imu3/sensordata")
 
         if can_device_type == "serial":
             kawrgs = {"can_device_name" : DEV_PATH,
@@ -139,7 +138,7 @@ class DroneCanCommunicator:
         period - blocking time, where -1 means infinity, 0 means non-blocking
         """
         try:
-            if(period == -1):
+            if period == -1:
                 self.node.spin()
             else:
                 self.node.spin(period)
@@ -158,24 +157,15 @@ class DroneCanCommunicator:
 
     def node_AHRS_msg_Callback(self, event):
         """
-        Incoming message structure:
-        --------------------------
-        timestamp: 
-            usec: 28128
-        orientation_xyzw: [0.9888, 0.1210, -0.0034, 0.0872]
-        orientation_covariance: []
-        angular_velocity: [-0.0083, 0.0043, 0.0112]
-        angular_velocity_covariance: []
-        linear_acceleration: [-0.3149, 1.8408, -10.5703]
-        linear_acceleration_covariance: []
-        --------------------------
+        Function is called by can handler.
+        It sends imu data to the ros topic with respect to node id
         """
         if event.transfer.source_node_id == 81:
-            self.IMU_1_publisher.publishImu(event.message)
+            self.imu_1_publisher.publish_imu(event.message)
         elif event.transfer.source_node_id == 82:
-            self.IMU_2_publisher.publishImu(event.message)
+            self.imu_2_publisher.publish_imu(event.message)
         elif event.transfer.source_node_id == 83:
-            self.IMU_3_publisher.publishImu(event.message)
+            self.imu_3_publisher.publish_imu(event.message)
 
 if __name__=="__main__":
     coloredlogs.install()
@@ -192,12 +182,12 @@ if __name__=="__main__":
     while communicator is None and not rospy.is_shutdown():
         try:
             communicator = DroneCanCommunicator(CAN_DEVICE_TYPE)
-        except OSError as e:
-            rospy.logerr("{}. Check you device. Trying to reconnect.".format(e))
+        except OSError as os_err:
+            rospy.logerr("{}. Check you device. Trying to reconnect.".format(os_err))
             time.sleep(2)
     rospy.logerr("UavcanCommunicatorV0 has been successfully created")
 
-    try:                                
+    try:
         while not rospy.is_shutdown():
             communicator.spin(0.2)
     except KeyboardInterrupt:
