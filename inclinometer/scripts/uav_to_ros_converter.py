@@ -1,34 +1,28 @@
 #!/usr/bin/env python3
 
-# Common
-import logging
-import coloredlogs, logging
 import time
 import sys
-
-# For uavcan v0.1
-import serial
+import queue
 import dronecan
 from dronecan import uavcan
-#import can
-import queue
-
 import rospy
 from sensor_msgs.msg import Imu
+
 
 DEV_PATH = "/dev/ttyACM0"
 CAN_DEVICE_TYPE = "can-slcan"
 
-class RosPublisher:
+
+class ImuPublisher:
     def __init__(self, topic_name):
         self.ros_msg = Imu()
         self.publisher = rospy.Publisher(topic_name, Imu, queue_size=10)
 
-    def publishImu(self, uavcan_msg):
+    def publish_imu(self, uavcan_msg):
         """
         Incoming message structure:
         --------------------------
-        timestamp: 
+        timestamp:
             usec: 28128
         orientation_xyzw: [0.9888, 0.1210, -0.0034, 0.0872]
         orientation_covariance: []
@@ -39,7 +33,7 @@ class RosPublisher:
         --------------------------
         """
         self.ros_msg.header.stamp = rospy.Time.now()
-        
+
         self.ros_msg.orientation.x = uavcan_msg.orientation_xyzw[0]
         self.ros_msg.orientation.y = uavcan_msg.orientation_xyzw[1]
         self.ros_msg.orientation.z = uavcan_msg.orientation_xyzw[2]
@@ -53,7 +47,6 @@ class RosPublisher:
         self.ros_msg.linear_acceleration.y = uavcan_msg.linear_acceleration[1]
         self.ros_msg.linear_acceleration.z = uavcan_msg.linear_acceleration[2]
 
-        
         self.publisher.publish(self.ros_msg)
 
 
@@ -67,26 +60,20 @@ class DroneCanCommunicator:
         Simply create a node without starting it.
         param can_device_type - could be 'serial' or 'can-slcan'
         """
-        self.handlers = []
+        self.subs = []
+        self.pubs = {
+            81 : ImuPublisher("/imu1/sensordata"),
+            82 : ImuPublisher("/imu2/sensordata"),
+            83 : ImuPublisher("/imu3/sensordata")
+        }
         self.node = None
 
-        self.tx_can_error_counter = 0
-        self.tx_full_buffer_error = 0
-        self.spin_can_error_counter = 0
-        self.spin_transfer_error_counter = 0
-        self.IMU_1_publisher =  RosPublisher("/imu1/sensordata")
-        self.IMU_2_publisher =  RosPublisher("/imu2/sensordata")
-        self.IMU_3_publisher =  RosPublisher("/imu3/sensordata")
-
-        if can_device_type == "serial":
-            kawrgs = {"can_device_name" : DEV_PATH,
-                      "baudrate" : 1000000}
-        elif can_device_type == "can-slcan":
+        if can_device_type == "can-slcan":
             kawrgs = {"can_device_name" : "slcan0",
                       "bustype" : "socketcan",
                       "bitrate" : 1000000}
         else:
-            logging.error("UavcanCommunicatorV0: Wrong can device type")
+            rospy.logerr("UavcanCommunicatorV0: Unsupported device type")
             sys.exit()
 
         node_info = uavcan.protocol.GetNodeInfo.Response()
@@ -96,12 +83,11 @@ class DroneCanCommunicator:
         node_info.hardware_version.unique_id = b'12345'
 
         self.node = dronecan.make_node(node_id=node_id, node_info=node_info, **kawrgs)
-        self.subscribe(uavcan.equipment.ahrs.Solution, self.node_AHRS_msg_Callback)
+        self.subscribe(uavcan.equipment.ahrs.Solution, self.node_ahrs_msg_callback)
 
     def __del__(self):
         if self.node is not None:
             self.node.close()
-
 
     def subscribe(self, data_type, callback):
         """
@@ -112,7 +98,7 @@ class DroneCanCommunicator:
         callback = lambda event: print(uavcan.to_yaml(event))
         communicator.subscribe(data_type, callback)
         """
-        self.handlers.append(self.node.add_handler(data_type, callback))
+        self.subs.append(self.node.add_handler(data_type, callback))
 
     def publish(self, data_type):
         """
@@ -123,44 +109,32 @@ class DroneCanCommunicator:
         """
         try:
             self.node.broadcast(data_type)
-        except can.CanError as e:
-            self.tx_can_error_counter += 1
-            logging.error("tx can.CanError {}, №{}".format(
-                         e, self.tx_can_error_counter))
-        except uavcan.driver.common.TxQueueFullError as e:
-            self.tx_full_buffer_error += 1
-            logging.error("tx uavcan.driver.common.TxQueueFullError {}, №{}".format(
-                         e, self.tx_full_buffer_error))
-        except queue.Full as e:
-            logging.error("tx queue.Full {}".format(e))
+        except uavcan.driver.common.TxQueueFullError as err:
+            rospy.logerr(f"tx uavcan.driver.common.TxQueueFullError {err}")
+        except queue.Full as err:
+            rospy.logerr(f"tx queue.Full {err}")
 
     def spin(self, period=0.00001):
         """
         period - blocking time, where -1 means infinity, 0 means non-blocking
         """
         try:
-            if(period == -1):
+            if period == -1:
                 self.node.spin()
             else:
                 self.node.spin(period)
-        except dronecan.transport.TransferError as e:
-            self.spin_transfer_error_counter += 1
-            logging.error("spin uavcan.transport.TransferError {}, №{}".format(
-                        e, self.spin_transfer_error_counter))
-        except can.CanError as e:
-            self.spin_can_error_counter += 1
-            logging.error("spin can.CanError {}, №{}".format(
-                        e, self.spin_can_error_counter))
-        except queue.Full as e:
-            logging.error("spin queue.Full {}".format(e))
-        except uavcan.driver.common.TxQueueFullError as e:
-            logging.error("spin uavcan.driver.common.TxQueueFullError {}".format(e))
+        except dronecan.transport.TransferError as err:
+            rospy.logerr(f"spin uavcan.transport.TransferError {err}")
+        except queue.Full as err:
+            rospy.logerr(f"spin queue.Full {err}")
+        except uavcan.driver.common.TxQueueFullError as err:
+            rospy.logerr(f"spin uavcan.driver.common.TxQueueFullError {err}")
 
-    def node_AHRS_msg_Callback(self, event):
+    def node_ahrs_msg_callback(self, event):
         """
         Incoming message structure:
         --------------------------
-        timestamp: 
+        timestamp:
             usec: 28128
         orientation_xyzw: [0.9888, 0.1210, -0.0034, 0.0872]
         orientation_covariance: []
@@ -170,34 +144,28 @@ class DroneCanCommunicator:
         linear_acceleration_covariance: []
         --------------------------
         """
-        if event.transfer.source_node_id == 81:
-            self.IMU_1_publisher.publishImu(event.message)
-        elif event.transfer.source_node_id == 82:
-            self.IMU_2_publisher.publishImu(event.message)
-        elif event.transfer.source_node_id == 83:
-            self.IMU_3_publisher.publishImu(event.message)
+        node_id = event.transfer.source_node_id
+        if node_id in self.pubs:
+            self.pubs[node_id].publish_imu(event.message)
+        else:
+            rospy.logwarn(f"Ahrs message has been received from unknown node id={node_id}")
 
 if __name__=="__main__":
-    coloredlogs.install()
-
-    # Init dev path using arguments
     if len(sys.argv) == 2:
         DEV_PATH = sys.argv[1]
 
-    # Init publisher
     rospy.init_node("ground_station_communicator")
 
-    # Init communicator
     communicator = None
     while communicator is None and not rospy.is_shutdown():
         try:
             communicator = DroneCanCommunicator(CAN_DEVICE_TYPE)
         except OSError as e:
-            rospy.logerr("{}. Check you device. Trying to reconnect.".format(e))
+            rospy.logerr(f"{e}. Check you device. Trying to reconnect.")
             time.sleep(2)
     rospy.logerr("UavcanCommunicatorV0 has been successfully created")
 
-    try:                                
+    try:
         while not rospy.is_shutdown():
             communicator.spin(0.2)
     except KeyboardInterrupt:
