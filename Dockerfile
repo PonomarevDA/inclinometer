@@ -13,15 +13,8 @@ RUN apt-get update                          &&  \
                         python3-catkin-tools
 RUN if [[ "$ROS_DISTRO" = "melodic" ]] ; then apt-get install -y python-pip python-catkin-tools ; fi
 
-RUN apt-get update && apt-get upgrade -y && apt-get dist-upgrade -y
-
-RUN apt-get install -y ros-$ROS_DISTRO-realsense2-camera
-
-RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
-    mkdir -p /aruco_recognition/src && cd /aruco_recognition && catkin_make
-RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
-    cd /aruco_recognition/src && git clone https://github.com/pal-robotics/aruco_ros.git && \
-    git clone  https://github.com/pal-robotics/ddynamic_reconfigure.git && cd .. && catkin_make
+COPY scripts/realsense_aruco_install.sh realsense_aruco_install.sh
+RUN ./realsense_aruco_install.sh 
 
 COPY ./yellDozer/install_requirements.sh  install_requirements.sh
 COPY ./yellDozer/python3_requirements.txt python3_requirements.txt
