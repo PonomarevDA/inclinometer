@@ -11,7 +11,7 @@ Commands:
 build           Build docker image.
 pull            Pull docker image.
 push            Push docker image.
-run             Run inno_vtol dynamics simulator in HITL mode.
+run             Run yelldozer container.
 interactive     Run container in interactive mode.
 kill            Kill all containers.
 help            Print this message and exit"
@@ -46,24 +46,24 @@ setup_config() {
 
 build_docker_image() {
     setup_config
-    sudo docker build -t $DOCKER_CONTAINER_NAME ..
+    docker build -t $DOCKER_CONTAINER_NAME ..
 }
 
 pull_docker_image() {
     setup_config
-    sudo docker pull $DOCKER_CONTAINER_NAME
+    docker pull $DOCKER_CONTAINER_NAME
 }
 
 push_docker_image() {
     setup_config
-    sudo docker push $DOCKER_CONTAINER_NAME
+    docker push $DOCKER_CONTAINER_NAME
 }
 
 run() {
     setup_config
     xhost +local:docker
-    # sudo docker container run --rm $DOCKER_FLAGS $DOCKER_CONTAINER_NAME ./inclinometer/scripts/run_inclinometer.sh
-    sudo docker container run --rm $DOCKER_FLAGS $DOCKER_CONTAINER_NAME ./yellDozer/scripts/run_yellDozer.sh
+    # docker container run --rm $DOCKER_FLAGS $DOCKER_CONTAINER_NAME ./inclinometer/scripts/run_inclinometer.sh
+    docker container run --rm $DOCKER_FLAGS $DOCKER_CONTAINER_NAME ./yellDozer/scripts/run_yellDozer.sh
     # host=$(docker inspect --format='{{ .Config.Hostname }}' $DOCKER_CONTAINER_NAME)
 }
 
@@ -74,7 +74,7 @@ run_interactive() {
 }
 
 kill_all_containers() {
-    sudo docker kill $(sudo docker ps -q)
+    docker kill $(docker ps -q)
 }
 
 cd "$(dirname "$0")"
