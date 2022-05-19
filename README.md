@@ -9,6 +9,12 @@ This is ROS-package that allows you to visualize inclinometer position and orien
 
 ## How to use it
 
+Clone with submodules:
+```
+git clone https://github.com/PonomarevDA/inclinometer.git --recursive
+git submodule update --init --recursive
+```
+
 The easiest way to play with this package is to use [scripts/docker.sh](scripts/docker.sh) script.
 
 Try `./scripts/docker.sh --help` to get detailed info.
