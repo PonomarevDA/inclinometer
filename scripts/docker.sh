@@ -37,7 +37,8 @@ setup_config() {
                  -e DEV_PATH_SYMLINK=$DEV_PATH_SYMLINK                      \
                  -v "/tmp/.X11-unix:/tmp/.X11-unix:rw"                      \
                  -e DISPLAY=$DISPLAY                                        \
-                 -e QT_X11_NO_MITSHM=1)"
+                 -e QT_X11_NO_MITSHM=1)                                     \
+                 -v /dev/bus/usb:/dev/bus/usb"
 
     echo "TAG_NAME is" $TAG_NAME
     echo "DOCKERHUB_REPOSITOTY is" $DOCKERHUB_REPOSITOTY
@@ -70,7 +71,7 @@ run() {
 run_interactive() {
     setup_config
     xhost +local:docker
-    docker container run --rm -it $DOCKER_FLAGS $DOCKER_CONTAINER_NAME /bin/bash
+    sudo docker container run --rm -it $DOCKER_FLAGS -v /dev/bus/usb:/dev/bus/usb $DOCKER_CONTAINER_NAME /bin/bash
 }
 
 kill_all_containers() {

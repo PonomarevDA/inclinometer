@@ -1,4 +1,4 @@
-ARG ROS_DISTRO=melodic
+ARG ROS_DISTRO=noetic
 
 FROM ros:$ROS_DISTRO
 LABEL description="Inclinometer"
@@ -12,9 +12,8 @@ RUN apt-get update                          &&  \
                         python3-catkin-tools
 RUN if [[ "$ROS_DISTRO" = "melodic" ]] ; then apt-get install -y python-pip python-catkin-tools ; fi
 
-# COPY ./inclinometer/install_requirements.sh  install_requirements.sh
-# COPY ./inclinometer/python3_requirements.txt python3_requirements.txt
-# RUN ./install_requirements.sh
+COPY scripts/realsense_aruco_install.sh realsense_aruco_install.sh
+RUN ./realsense_aruco_install.sh 
 
 COPY ./yellDozer/install_requirements.sh  install_requirements.sh
 COPY ./yellDozer/python3_requirements.txt python3_requirements.txt
