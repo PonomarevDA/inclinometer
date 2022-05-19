@@ -1,5 +1,4 @@
 ARG ROS_DISTRO=noetic
-#melodic
 
 FROM ros:$ROS_DISTRO
 LABEL description="Inclinometer"

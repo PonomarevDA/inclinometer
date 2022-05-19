@@ -1,8 +1,8 @@
+#!/usr/bin/env python3
 """
 Python module collects data from IMU modes and
     compute angular joints position with frequency 100 Hz
 """
-#!/usr/bin/env python3
 
 import rospy
 from sensor_msgs.msg import Imu
@@ -49,7 +49,7 @@ class NodePositionComputer:
         return np.arctan2(2*(q_0*q_1 + q_2*q_3), (1 - 2*(q_1*q_1 + q_2*q_2)))
 
 
-    def send_joint_pos(self):
+    def send_joint_pos(self, event):
         # first imu
         imu1_angle = self.get_angle(0)
 

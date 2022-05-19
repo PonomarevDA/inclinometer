@@ -37,7 +37,8 @@ setup_config() {
                  -e DEV_PATH_SYMLINK=$DEV_PATH_SYMLINK                      \
                  -v "/tmp/.X11-unix:/tmp/.X11-unix:rw"                      \
                  -e DISPLAY=$DISPLAY                                        \
-                 -e QT_X11_NO_MITSHM=1)"
+                 -e QT_X11_NO_MITSHM=1)                                     \
+                 -v /dev/bus/usb:/dev/bus/usb"
 
     echo "TAG_NAME is" $TAG_NAME
     echo "DOCKERHUB_REPOSITOTY is" $DOCKERHUB_REPOSITOTY
